@@ -14,6 +14,7 @@ type Regulation = {
   country: string;
   featured: boolean;
   region: string;
+  color?: string;
 }
 
 export default function Home() {
@@ -49,7 +50,13 @@ export default function Home() {
         // Limit to the 4 most recently updated regulations
         const limitedRegulations = sortedRegulations.slice(0, 4);
 
-        setFeaturedRegulations(limitedRegulations);
+        // Assign colors to each regulation for styling
+        const coloredRegulations = limitedRegulations.map((reg, idx) => ({
+          ...reg,
+          color: colors[idx % colors.length],
+        }));
+
+        setFeaturedRegulations(coloredRegulations);
       } catch (err) {
         console.error('Error fetching featured regulations:', err);
         setError('Failed to load regulations updates');
@@ -92,36 +99,31 @@ export default function Home() {
           ) : featuredRegulations.length === 0 ? (
             <div className="col-span-full text-center py-8 text-muted-foreground">No featured regulations found</div>
           ) : (
-            featuredRegulations.map((regulation, index) => {
-              // Cycle through colors for different regulations
-              const colorIndex = index % colors.length;
-              const color = colors[colorIndex];
-
-              return (
-                <Card key={regulation._id} className={`border-l-4 border-l-${color} flex flex-col h-full`}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg flex items-center">
-                      <AlertCircle className={`h-5 w-5 mr-2 text-${color}`} />
-                      {regulation.name}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex flex-col flex-grow">
-                    <CardDescription className="mb-auto">{regulation.description || 'No description available'}</CardDescription>
-                    <div className="mt-2 pt-2 border-t">
-                      <span className="text-xs text-muted-foreground">{regulation.country}</span>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="pt-0 flex justify-end">
+            featuredRegulations.map((regulation) => (
+              <Card
+                key={regulation._id}
+                className={`border-l-4 border-l-${regulation.color} flex flex-col h-full`}
+              >
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <AlertCircle className={`h-5 w-5 mr-2 text-${regulation.color}`} />
+                    New Regulation
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>{regulation.description || 'No description available'}</CardDescription>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-xs text-muted-foreground">{regulation.country}</span>
                     <Link
                       href={`/regulations/details?id=${regulation._id}`}
                       className="text-sm text-primary hover:underline"
                     >
                       View Details
                     </Link>
-                  </CardFooter>
-                </Card>
-              );
-            })
+                  </div>
+                </CardContent>
+              </Card>
+            ))
           )}
         </div>
       </section>
