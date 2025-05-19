@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+#Do not change my interface except i ask for
+#my database is mongodb, mongoose orm
