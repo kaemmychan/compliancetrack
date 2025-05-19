@@ -100,13 +100,13 @@ export default function Home() {
               return (
                 <Card key={regulation._id} className={`border-l-4 border-l-${color} flex flex-col h-full`}>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-lg flex items-center">
+                    <CardTitle className="text-lg flex items-center line-clamp-5">
                       <AlertCircle className={`h-5 w-5 mr-2 text-${color}`} />
                       {regulation.name}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-col flex-grow">
-                    <CardDescription className="mb-auto">{regulation.description || 'No description available'}</CardDescription>
+                    <CardDescription className="mb-auto line-clamp-4">{regulation.description || 'No description available'}</CardDescription>
                     <div className="mt-2 pt-2 border-t">
                       <span className="text-xs text-muted-foreground">{regulation.country}</span>
                     </div>
