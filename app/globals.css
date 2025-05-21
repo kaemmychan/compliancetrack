@@ -58,3 +58,49 @@
   }
 }
 
+/* Custom styles */
+.regulation-name-container {
+  display: inline;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.regulation-badges {
+  display: inline-flex;
+  margin-left: 0.75rem;
+  white-space: nowrap;
+  gap: 0.375rem;
+  align-items: center;
+}
+
+.card-content-spacing {
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+.category-badge {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.category-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.info-box {
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  transition: all 0.2s ease;
+}
+
+.info-box:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+

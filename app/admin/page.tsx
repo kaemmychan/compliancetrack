@@ -663,7 +663,7 @@ export default function AdminPage() {
         if (chemicalsData.length > 0 && chemicalsData[0].chemicalRegulations && chemicalsData[0].chemicalRegulations.length > 0) {
           console.log('First chemical regulation details:', chemicalsData[0].chemicalRegulations[0]);
         }
-        
+
         setChemicals(chemicalsData);
       } else {
         console.error('Invalid chemicals data format received. Expected array, got:', typeof chemicalsData);
@@ -1049,19 +1049,19 @@ export default function AdminPage() {
       </div>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <TabsTrigger value="chemicals" className="flex items-center gap-2">
+          <TabsTrigger value="chemicals" className="flex items-center gap-2 h-10">
             <Database className="h-4 w-4" />
             Chemicals
           </TabsTrigger>
-          <TabsTrigger value="regulations" className="flex items-center gap-2">
+          <TabsTrigger value="regulations" className="flex items-center gap-2 h-10">
             <FileText className="h-4 w-4" />
             Regulations
           </TabsTrigger>
-          <TabsTrigger value="upload" className="flex items-center gap-2">
+          <TabsTrigger value="upload" className="flex items-center gap-2 h-10">
             <Upload className="h-4 w-4" />
             Upload Database
           </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
+          <TabsTrigger value="history" className="flex items-center gap-2 h-10">
             <History className="h-4 w-4" />
             History
           </TabsTrigger>
@@ -2193,9 +2193,9 @@ export default function AdminPage() {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="admin">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="admin">Admin Activity</TabsTrigger>
-                  <TabsTrigger value="user">User Activity</TabsTrigger>
+                <TabsList className="mb-4 inline-flex h-auto">
+                  <TabsTrigger value="admin" className="h-10">Admin Activity</TabsTrigger>
+                  <TabsTrigger value="user" className="h-10">User Activity</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="admin">
@@ -2285,8 +2285,8 @@ export default function AdminPage() {
           <div className="grid gap-4 py-4">
             <Tabs defaultValue="manual" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="manual">Manual Entry</TabsTrigger>
-                <TabsTrigger value="file">Import from File</TabsTrigger>
+                <TabsTrigger value="manual" className="h-10">Manual Entry</TabsTrigger>
+                <TabsTrigger value="file" className="h-10">Import from File</TabsTrigger>
               </TabsList>
               <TabsContent value="manual" className="space-y-4 pt-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

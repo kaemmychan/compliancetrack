@@ -155,10 +155,10 @@ export default function RegulationDetailsPage() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="chemicals">Regulated Chemicals</TabsTrigger>
-            <TabsTrigger value="updates" id="updates-tab">Update History</TabsTrigger>
+          <TabsList className="inline-flex h-auto">
+            <TabsTrigger value="overview" className="h-10">Overview</TabsTrigger>
+            <TabsTrigger value="chemicals" className="h-10">Regulated Chemicals</TabsTrigger>
+            <TabsTrigger value="updates" id="updates-tab" className="h-10">Update History</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -318,16 +318,18 @@ export default function RegulationDetailsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {regulation.chemicals && regulation.chemicals.map((chemical: any, index: number) => (
-                      <TableRow
-                        key={chemical._id || chemical.id || `chemical-${index}`}
-                        className={chemical.updated ? "bg-yellow-50" : ""}>
-                        <TableCell className="font-medium">
-                          {(() => {
-                            const chemicalId = chemical.chemical?._id || chemical.chemical || chemical.id;
-                            const isValidId = isValidObjectId(chemicalId);
-
-                            return isValidId ? (
+                    {regulation.chemicals && regulation.chemicals
+                      .filter((chemical: any) => {
+                        const chemicalId = chemical.chemical?._id || chemical.chemical || chemical.id;
+                        return isValidObjectId(chemicalId);
+                      })
+                      .map((chemical: any, index: number) => {
+                        const chemicalId = chemical.chemical?._id || chemical.chemical || chemical.id;
+                        return (
+                          <TableRow
+                            key={chemical._id || chemical.id || `chemical-${index}`}
+                            className={chemical.updated ? "bg-yellow-50" : ""}>
+                            <TableCell className="font-medium">
                               <Link
                                 href={`/search/details?id=${chemicalId}`}
                                 className="hover:underline hover:text-primary"
@@ -335,60 +337,31 @@ export default function RegulationDetailsPage() {
                                 {chemical.name || (chemical.chemical && chemical.chemical.name) || "Unknown Chemical"}
                                 {chemical.updated && <Badge className="ml-2 bg-yellow-500">Updated</Badge>}
                               </Link>
-                            ) : (
-                              <span>
-                                {chemical.name || (chemical.chemical && chemical.chemical.name) || "Unknown Chemical"}
-                                {chemical.updated && <Badge className="ml-2 bg-yellow-500">Updated</Badge>}
-                              </span>
-                            );
-                          })()}
-                        </TableCell>
-                        <TableCell>{chemical.casNumber || (chemical.chemical && chemical.chemical.casNumber) || "N/A"}</TableCell>
-                        <TableCell>
-                          {chemical.smlValue || chemical.sml || "N/A"} {chemical.smlUnit || chemical.unit || "mg/kg"}
-                        </TableCell>
-                        <TableCell>{chemical.notes || "N/A"}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            {(() => {
-                              const chemicalId = chemical.chemical?._id || chemical.chemical || chemical.id;
-                              const isValidId = isValidObjectId(chemicalId);
-
-                              return (
-                                <>
-                                  <Button asChild variant="outline" size="sm" disabled={!isValidId}>
-                                    {isValidId ? (
-                                      <Link href={`/search/details?id=${chemicalId}`}>
-                                        <FileText className="h-4 w-4 mr-1" />
-                                        Details
-                                      </Link>
-                                    ) : (
-                                      <span>
-                                        <FileText className="h-4 w-4 mr-1" />
-                                        Details
-                                      </span>
-                                    )}
-                                  </Button>
-                                  <Button asChild variant="outline" size="sm" disabled={!isValidId}>
-                                    {isValidId ? (
-                                      <Link href={`/calculation?chemical=${chemicalId}`}>
-                                        <Calculator className="h-4 w-4 mr-1" />
-                                        Calculate
-                                      </Link>
-                                    ) : (
-                                      <span>
-                                        <Calculator className="h-4 w-4 mr-1" />
-                                        Calculate
-                                      </span>
-                                    )}
-                                  </Button>
-                                </>
-                              );
-                            })()}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                            </TableCell>
+                            <TableCell>{chemical.casNumber || (chemical.chemical && chemical.chemical.casNumber) || "N/A"}</TableCell>
+                            <TableCell>
+                              {chemical.smlValue || chemical.sml || "N/A"} {chemical.smlUnit || chemical.unit || "mg/kg"}
+                            </TableCell>
+                            <TableCell>{chemical.notes || "N/A"}</TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button asChild variant="outline" size="sm">
+                                  <Link href={`/search/details?id=${chemicalId}`}>
+                                    <FileText className="h-4 w-4 mr-1" />
+                                    Details
+                                  </Link>
+                                </Button>
+                                <Button asChild variant="outline" size="sm">
+                                  <Link href={`/calculation?chemical=${chemicalId}`}>
+                                    <Calculator className="h-4 w-4 mr-1" />
+                                    Calculate
+                                  </Link>
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                   </TableBody>
                 </Table>
               </CardContent>

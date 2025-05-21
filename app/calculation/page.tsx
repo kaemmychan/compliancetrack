@@ -774,8 +774,8 @@ export default function CalculationPage() {
             <CardContent>
               <Tabs defaultValue="table" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="table">Table View</TabsTrigger>
-                  <TabsTrigger value="summary">Summary</TabsTrigger>
+                  <TabsTrigger value="table" className="h-10">Table View</TabsTrigger>
+                  <TabsTrigger value="summary" className="h-10">Summary</TabsTrigger>
                 </TabsList>
                 <TabsContent value="table" className="mt-4">
                   <Table>

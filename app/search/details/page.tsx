@@ -310,12 +310,12 @@ export default function ChemicalDetailsPage() {
           </Card>
 
           <Tabs defaultValue="regulations" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="regulations">Regulations</TabsTrigger>
-              <TabsTrigger value="ai-analysis">AI Analysis</TabsTrigger>
-              <TabsTrigger value="details">Chemical Details</TabsTrigger>
+            <TabsList className="inline-flex h-auto">
+              <TabsTrigger value="regulations" className="h-10">Regulations</TabsTrigger>
+              <TabsTrigger value="ai-analysis" className="h-10">AI Analysis</TabsTrigger>
+              <TabsTrigger value="details" className="h-10">Chemical Details</TabsTrigger>
               {chemical.additionalInfo && Object.keys(chemical.additionalInfo).length > 0 && (
-                <TabsTrigger value="additional">Additional Information</TabsTrigger>
+                <TabsTrigger value="additional" className="h-10">Additional Information</TabsTrigger>
               )}
             </TabsList>
 
