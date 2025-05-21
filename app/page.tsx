@@ -10,6 +10,7 @@ import { AlertCircle, Calculator, Globe, Search, Loader2 } from "lucide-react"
 type Regulation = {
   _id: string;
   name: string;
+  shortName?: string;
   description?: string;
   country: string;
   featured: boolean;
@@ -107,7 +108,7 @@ export default function Home() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
                     <AlertCircle className={`h-5 w-5 mr-2 text-${regulation.color}`} />
-                    New Regulation
+                    {regulation.shortName || "New Regulation"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

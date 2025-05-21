@@ -7,22 +7,96 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, FileText, AlertTriangle, CheckCircle, Loader2, ExternalLink } from "lucide-react"
+import { ArrowLeft, FileText, AlertTriangle, CheckCircle, Loader2, ExternalLink, Sparkles, Info } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import mongoose from "mongoose"
+
+// Define types for our data
+interface Regulation {
+  _id: string;
+  name: string;
+  shortName?: string;
+  country?: string;
+  link?: string;
+}
+
+interface ChemicalRegulation {
+  id: string;
+  regulation: Regulation;
+  smlValue?: string;
+  smlUnit?: string;
+  notes?: string;
+  restrictions?: string;
+}
+
+interface AISummary {
+  regulationId: string;
+  regulationName: string;
+  summary: string;
+  keyPoints: string[];
+  lastUpdated: string;
+  confidence: number; // 0-1 value representing AI confidence
+}
+
+interface Chemical {
+  _id: string;
+  name: string;
+  casNumber: string;
+  status: string;
+  riskLevel: string;
+  riskDescription?: string;
+  chemicalRegulations?: ChemicalRegulation[];
+  additionalInfo?: Record<string, string>;
+  aiSummaries?: AISummary[]; // AI-generated summaries
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface RecentSearch {
+  id: string;
+  name: string;
+  casNumber: string;
+}
 
 export default function ChemicalDetailsPage() {
   const searchParams = useSearchParams()
   const chemicalId = searchParams.get("id")
-  const [chemical, setChemical] = useState(null)
+  const [chemical, setChemical] = useState<Chemical | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [recentSearches, setRecentSearches] = useState([])
+  const [error, setError] = useState<string | null>(null)
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([])
+  const [aiSummaries, setAiSummaries] = useState<AISummary[]>([])
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
 
   // Helper function to validate MongoDB ObjectId
   const isValidObjectId = (id: string): boolean => {
     return mongoose.Types.ObjectId.isValid(id);
+  }
+
+  // Function to fetch AI summaries
+  const fetchAiSummaries = async (id: string) => {
+    try {
+      setAiLoading(true)
+      setAiError(null)
+
+      // In a real implementation, this would call an actual AI service
+      // For now, we'll use mock data
+      const response = await fetch(`/api/ai-summary/${id}`)
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to fetch AI summaries')
+      }
+
+      setAiSummaries(result.data)
+    } catch (err: unknown) {
+      console.error('Error fetching AI summaries:', err)
+      setAiError(err instanceof Error ? err.message : 'Failed to fetch AI summaries')
+    } finally {
+      setAiLoading(false)
+    }
   }
 
   // Fetch chemical details
@@ -49,6 +123,9 @@ export default function ChemicalDetailsPage() {
         const chemicalData = result.data
         setChemical(chemicalData)
 
+        // Fetch AI summaries after getting chemical details
+        fetchAiSummaries(chemicalId)
+
         // Get recent searches from session storage and update with current chemical
         try {
           let recentSearchList = []
@@ -58,7 +135,7 @@ export default function ChemicalDetailsPage() {
             recentSearchList = JSON.parse(storedSearches)
 
             // Remove this chemical if it already exists in the list
-            recentSearchList = recentSearchList.filter(item => item.id !== chemicalData._id)
+            recentSearchList = recentSearchList.filter((item: RecentSearch) => item.id !== chemicalData._id)
           }
 
           // Add current chemical to the beginning of the list
@@ -81,9 +158,9 @@ export default function ChemicalDetailsPage() {
         } catch (storageError) {
           console.error('Error accessing session storage:', storageError)
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Error fetching chemical details:', err)
-        setError(err.message || 'Failed to fetch chemical details')
+        setError(err instanceof Error ? err.message : 'Failed to fetch chemical details')
       } finally {
         setLoading(false)
       }
@@ -171,7 +248,7 @@ export default function ChemicalDetailsPage() {
   }
 
   // Get status badge
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case "allowed":
         return (
@@ -235,6 +312,7 @@ export default function ChemicalDetailsPage() {
           <Tabs defaultValue="regulations" className="space-y-4">
             <TabsList>
               <TabsTrigger value="regulations">Regulations</TabsTrigger>
+              <TabsTrigger value="ai-analysis">AI Analysis</TabsTrigger>
               <TabsTrigger value="details">Chemical Details</TabsTrigger>
               {chemical.additionalInfo && Object.keys(chemical.additionalInfo).length > 0 && (
                 <TabsTrigger value="additional">Additional Information</TabsTrigger>
@@ -260,7 +338,7 @@ export default function ChemicalDetailsPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {chemical.chemicalRegulations.map((relation) => (
+                        {chemical.chemicalRegulations.map((relation: ChemicalRegulation) => (
                           <TableRow key={relation.id}>
                             <TableCell className="font-medium">
                               {relation.regulation.name}
@@ -314,6 +392,85 @@ export default function ChemicalDetailsPage() {
                   ) : (
                     <div className="text-center py-8">
                       <p className="text-muted-foreground">No regulations found for this chemical</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="ai-analysis">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Sparkles className="h-5 w-5 mr-2 text-yellow-500" />
+                    AI Analysis
+                  </CardTitle>
+                  <CardDescription>
+                    AI-generated summaries and insights about {chemical.name} in various regulations
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {aiLoading ? (
+                    <div className="flex flex-col items-center justify-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                      <p className="text-muted-foreground">Analyzing regulations...</p>
+                    </div>
+                  ) : aiError ? (
+                    <div className="text-center py-8">
+                      <AlertTriangle className="h-8 w-8 text-yellow-500 mx-auto mb-4" />
+                      <p className="text-muted-foreground">{aiError}</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-4"
+                        onClick={() => fetchAiSummaries(chemicalId!)}
+                      >
+                        Try Again
+                      </Button>
+                    </div>
+                  ) : aiSummaries.length > 0 ? (
+                    <Accordion type="single" collapsible className="w-full">
+                      {aiSummaries.map((summary, index) => (
+                        <AccordionItem key={index} value={`item-${index}`}>
+                          <AccordionTrigger className="hover:no-underline">
+                            <div className="flex items-center justify-between w-full pr-4">
+                              <div className="flex items-center">
+                                <Info className="h-4 w-4 mr-2 text-primary" />
+                                <span>
+                                  {summary.regulationName}
+                                  {summary.confidence >= 0.8 && (
+                                    <Badge variant="secondary" className="ml-2 bg-green-100">High Confidence</Badge>
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4 pt-2">
+                              <div className="text-sm text-muted-foreground">
+                                Last updated: {new Date(summary.lastUpdated).toLocaleDateString()}
+                              </div>
+                              <div className="text-sm">
+                                {summary.summary}
+                              </div>
+                              {summary.keyPoints.length > 0 && (
+                                <div className="mt-4">
+                                  <h4 className="text-sm font-medium mb-2">Key Points:</h4>
+                                  <ul className="list-disc pl-5 space-y-1">
+                                    {summary.keyPoints.map((point, i) => (
+                                      <li key={i} className="text-sm">{point}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No AI analysis available for this chemical</p>
                     </div>
                   )}
                 </CardContent>
@@ -377,7 +534,7 @@ export default function ChemicalDetailsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {Object.entries(chemical.additionalInfo).map(([key, value]) => (
+                      {Object.entries(chemical.additionalInfo).map(([key, value]: [string, string]) => (
                         <div key={key}>
                           <h3 className="text-sm font-medium text-muted-foreground mb-1">{key}</h3>
                           <p>{value}</p>
@@ -400,7 +557,7 @@ export default function ChemicalDetailsPage() {
             <CardContent>
               {recentSearches.length > 0 ? (
                 <div className="space-y-2">
-                  {recentSearches.map((result) => (
+                  {recentSearches.map((result: RecentSearch) => (
                     <Link key={result.id} href={`/search/details?id=${result.id}`} className="block">
                       <div
                         className={`p-3 rounded-md border hover:bg-muted transition-colors ${result.id === chemical._id ? "bg-muted border-primary" : ""}`}
